@@ -1,63 +1,66 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\Admin;
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\Customer;
-use App\Models\Cart;
-use App\Models\CartItem;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Payment;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes - Online Stationery Shop
+|--------------------------------------------------------------------------
+*/
 
 
+Route::get('/about', function () {
+    return view('pages.about');
+});
 
-//Route::get('test', function () {
-    //return view('welcome');
+Route::get('/contact', function () {
+    return view('pages.contact');
+});
 
-    // 1️ Admin → Products
-    //$admin = Admin::find(1);
-    //return $admin->products;
+// Landing page (public)
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
 
-    // 2️ Admin → Categories
-    // return $admin->categories;
+// Product catalog (public)
+Route::get('/products', function () {
+    return view('products.index');
+})->name('products.index');
 
-    // 3️ Category → Products
-    // $category = Category::find(1);
-    // return $category->products;
+Route::get('/products/{id}', function ($id) {
+    return view('products.show', ['id' => $id]);
+})->name('products.show')->whereNumber('id');
 
-    // 4️ Product → Category
-    // $product = Product::find(1);
-    // return $product->category;
+// Debug cart route
+Route::get('/debug-cart', function () {
+    $customer = auth()->user();
+    if (!$customer) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $cart = \App\Models\Cart::where('customer_id', $customer->id)->first();
+    if (!$cart) {
+        return response()->json(['error' => 'No cart found']);
+    }
+    
+    $cartItems = $cart->cartItems()->with('product')->get();
+    
+    return response()->json([
+        'cart_id' => $cart->id,
+        'customer_id' => $customer->id,
+        'items_count' => $cartItems->count(),
+        'items' => $cartItems
+    ]);
+})->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']);
 
-    // 5️ Customer → Cart
-    // $customer = Customer::find(1);
-    // return $customer->cart;
-
-    // 6️ Cart → Cart Items
-    // $cart = Cart::find(1);
-    // return $cart->cartItems;
-
-    // 7️ CartItem → Product
-    // $cartItem = CartItem::find(1);
-    // return $cartItem->product;
-
-    // 8️ Customer → Payments
-    // return $customer->payment;
-
-    // 9️ Order → Order Items
-    // $order = Order::find(1);
-    // return $order->orderItems;
-
-    //10 Order → Customer
-    // return $order->customer;
-
-    // 1️1️ Payment → Order
-    // $payment = Payment::find(1);
-    // return $payment->order;
-/*});
-
+/*
+|--------------------------------------------------------------------------
+| Authenticated routes (Jetstream + Sanctum session)
+|--------------------------------------------------------------------------
+*/
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -66,4 +69,22 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-});*/
+
+    // Return API token for Axios (session-authenticated)
+    Route::get('/api-token', [AuthController::class, 'token'])->name('api.token');
+
+    Route::get('/cart', function () {
+        return view('cart.index');
+    })->name('cart.index');
+
+    // Checkout (THIS IS THE IMPORTANT PART)
+    Route::get('/checkout', [CheckoutController::class, 'index'])
+        ->name('checkout');
+
+    Route::post('/checkout', [CheckoutController::class, 'placeOrder'])
+        ->name('checkout.place');
+
+    Route::get('/orders', function () {
+        return view('orders.index');
+    })->name('orders.index');
+});

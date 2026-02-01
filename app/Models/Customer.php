@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Model;
-
 
 class Customer extends Authenticatable
 {
-    use HasApiTokens,HasFactory,Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
+    
     protected $fillable = [
         'name',
         'email',
@@ -22,12 +21,32 @@ class Customer extends Authenticatable
         'city',
         'state',
         'zip',
-        
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    // Relationships
     public function cart()
     {
         return $this->hasOne(Cart::class);
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

@@ -7,9 +7,21 @@ use App\Http\Resources\CartResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-
 class CartController extends Controller
 {
+    /**
+     * Get or create cart for the authenticated customer (for Axios / frontend).
+     */
+    public function myCart(Request $request)
+    {
+        $customer = $request->user();
+        $cart = Cart::firstOrCreate(
+            ['customer_id' => $customer->id],
+            ['customer_id' => $customer->id]
+        );
+        return new CartResource($cart->load(['customer', 'cartItems.product']));
+    }
+
     /**
      * Display a listing of the resource.
      */

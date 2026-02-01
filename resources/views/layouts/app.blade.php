@@ -16,25 +16,40 @@
 
         <!-- Styles -->
         @livewireStyles
+        
+        <!-- Alpine.js -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
         <x-banner />
 
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen">
             @livewire('navigation-menu')
 
             <!-- Page Heading -->
             @if (isset($header))
-                <header class="bg-white shadow">
+                <header class="bg-white/90 backdrop-blur-sm shadow-lg border-b border-blue-100">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
+                    </div>
+                </header>
+            @endif
+            
+            @hasSection('header')
+                <header class="bg-white/90 backdrop-blur-sm shadow-lg border-b border-blue-100">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        @yield('header')
                     </div>
                 </header>
             @endif
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                @if (isset($slot))
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endif
             </main>
         </div>
 

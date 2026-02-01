@@ -1,32 +1,32 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Admin Dashboard') }}
-            </h2>
-            <!-- Logout Button -->
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <x-button class="bg-red-500 hover:bg-red-600">
-                    {{ __('Logout') }}
-                </x-button>
-            </form>
-        </div>
-    </x-slot>
+@extends('admin.layout')
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <h1 class="text-2xl font-bold mb-4">Welcome, {{ Auth::guard('admin')->user()->admin_name }}!</h1>
-                <p>You are logged in as an admin.</p>
+@section('title', 'Dashboard')
 
-                <!-- Example Links -->
-                <div class="mt-6 space-y-2">
-                    <a href="#" class="text-blue-600 hover:underline">Manage Products</a><br>
-                    <a href="#" class="text-blue-600 hover:underline">Manage Categories</a><br>
-                    <a href="#" class="text-blue-600 hover:underline">View Orders</a>
-                </div>
-            </div>
-        </div>
+@section('content')
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-slate-900">Welcome, {{ Auth::guard('admin')->user()->admin_name }}!</h1>
+        <p class="text-slate-600 mt-1">Manage your online stationery shop</p>
     </div>
-</x-app-layout>
+
+    @livewire('admin.dashboard-stats')
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        <a href="{{ route('admin.products.index') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition border-l-4 border-indigo-600">
+            <div class="text-4xl mb-2">📦</div>
+            <h3 class="text-lg font-semibold text-slate-900">Manage Products</h3>
+            <p class="text-slate-600 text-sm mt-1">Add, edit, or remove products</p>
+        </a>
+
+        <a href="{{ route('admin.categories.index') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition border-l-4 border-purple-600">
+            <div class="text-4xl mb-2">📁</div>
+            <h3 class="text-lg font-semibold text-slate-900">Manage Categories</h3>
+            <p class="text-slate-600 text-sm mt-1">Organize product categories</p>
+        </a>
+
+        <a href="{{ route('admin.orders.index') }}" class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition border-l-4 border-green-600">
+            <div class="text-4xl mb-2">🛒</div>
+            <h3 class="text-lg font-semibold text-slate-900">View Orders</h3>
+            <p class="text-slate-600 text-sm mt-1">Customer orders and status</p>
+        </a>
+    </div>
+@endsection

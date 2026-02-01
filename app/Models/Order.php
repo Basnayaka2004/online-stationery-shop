@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'cart_id',
         'customer_id',
@@ -16,18 +17,36 @@ class Order extends Model
         'status',
     ];
 
+    protected $casts = [
+        'order_date' => 'date',
+    ];
 
+    // Relationships
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
     }
+
     public function payment()
     {
         return $this->hasOne(Payment::class);
     }
-    public function customer()
+
+    public function cart()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Cart::class);
+    }
+
+    // Computed total
+    public function getTotalAmountAttribute()
+    {
+        return $this->orderItems->sum(function ($item) {
+            return $item->quantity * $item->price_at_purchase;
+        });
     }
 }

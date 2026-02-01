@@ -20,7 +20,7 @@ class OrderResource extends JsonResource
             'status'     => $this->status,
 
             'customer'   => new CustomerResource($this->whenLoaded('customer')),
-            'items'      => OrderItemResource::collection($this->whenLoaded('orderItem')),
+            'items'      => OrderItemResource::collection($this->whenLoaded('orderItems')),
             'payment'    => new PaymentResource($this->whenLoaded('payment')),
         ];
     }
